@@ -5,9 +5,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Folder Include="DTOs\" />
 		<Folder Include="Enumerations\" />
 		<Folder Include="Excepciones\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.4" />
+	  <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.11" />
 	</ItemGroup>
 
 </Project>

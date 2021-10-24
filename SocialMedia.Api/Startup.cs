@@ -1,3 +1,4 @@
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using SocialMedia.Core.Interfaces;
 using SocialMedia.Infraestructure.Data;
+using SocialMedia.Infraestructure.Filters;
 using SocialMedia.Infraestructure.Repositorios;
 using System;
 using System.Collections.Generic;
@@ -24,6 +26,7 @@ namespace SocialMedia.Api
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
         }
 
         public IConfiguration Configuration { get; }
@@ -31,6 +34,17 @@ namespace SocialMedia.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //automaper
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            //para ingorar las referencias circulares 
+            services.AddControllers().AddNewtonsoftJson(options => 
+            {
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            })
+                //vamos a validar de forma normal de nuestro modelo
+                .ConfigureApiBehaviorOptions(options=> {
+                    //options.SuppressModelStateInvalidFilter = true;
+                });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -40,7 +54,13 @@ namespace SocialMedia.Api
             services.AddTransient<IPostRepository, PostRepository>();
             services.AddDbContext<SocialMediaContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("variable")));
-            
+            services.AddMvc(options =>
+            {
+                options.Filters.Add<ValidationFilter>();
+            }).AddFluentValidation(options =>
+            { options.RegisterValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
