@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using SocialMedia.Core.Interfaces;
+using SocialMedia.Core.Services;
 using SocialMedia.Infraestructure.Data;
 using SocialMedia.Infraestructure.Filters;
 using SocialMedia.Infraestructure.Repositorios;
@@ -51,6 +52,7 @@ namespace SocialMedia.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SocialMedia.Api", Version = "v1" });
             });
+            services.AddTransient<IPostService, PostService>();
             services.AddTransient<IPostRepository, PostRepository>();
             services.AddDbContext<SocialMediaContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("variable")));

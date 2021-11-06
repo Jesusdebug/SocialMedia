@@ -14,7 +14,7 @@ namespace SocialMedia.Infraestructure.Validatios
         {
             RuleFor(pos => pos.Description)
                 .NotNull()
-                .Length(10, 15);
+                .Length(10, 500);
             RuleFor(pos => pos.Date)
               .NotNull()
             .LessThan(DateTime.Now);
