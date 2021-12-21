@@ -5,13 +5,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Folder Include="Enumerations\" />
-		<Folder Include="Excepciones\" />
+	  <Compile Remove="Excepciones\**" />
+	  <EmbeddedResource Remove="Excepciones\**" />
+	  <None Remove="Excepciones\**" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.4" />
 	  <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.11" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Enumerations\" />
+	  <Folder Include="Exceptions\" />
 	</ItemGroup>
 
 </Project>

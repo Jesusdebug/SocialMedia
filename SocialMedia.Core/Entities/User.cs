@@ -17,7 +17,7 @@ namespace SocialMedia.Core.Entities
         public string FirtName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
-        public DateTime DAteBird { get; set; }
+        public DateTime DateOfBirth { get; set; }
         public string Telephone { get; set; }
         public bool IsActivo { get; set; }
 

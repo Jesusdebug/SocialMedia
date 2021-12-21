@@ -32,7 +32,7 @@ namespace SocialMedia.Infraestructure.Data.Cofigurationa
                 .HasMaxLength(30)
                 .IsUnicode(false);
 
-            builder.Property(e => e.DAteBird)
+            builder.Property(e => e.DateOfBirth)
                 .HasColumnName("FechaNacimiento")
                 .HasColumnType("date");
 

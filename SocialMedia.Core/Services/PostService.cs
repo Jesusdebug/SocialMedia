@@ -10,30 +10,41 @@ namespace SocialMedia.Core.Services
 {
     public class PostService : IPostService
     {
-        private readonly IPostRepository _ipostRespository;
-        public PostService(IPostRepository ipostRepository)
+        private readonly IPostRepository _postRespository;
+        private readonly IUserRepository _userRepository;
+        public PostService(IPostRepository ipostRepository, IUserRepository iuserRepository)
         {
-            _ipostRespository = ipostRepository;
+            _postRespository = ipostRepository;
+            _userRepository = iuserRepository;
         }
         public async Task crear(Post post)
         {
-             await _ipostRespository.crear(post);
+            var user = await _userRepository.GetUser(post.UserId);
+            if (user==null)
+            {
+                throw new Exception("Usuario no existe");
+            }
+            if (post.Description.Contains("Sexo")==true)
+            {
+                throw new Exception("Contenido no permitido");
+            }
+             await _postRespository.crear(post);
         }
         public async Task<bool> DeletPost(int id)
         {
-            return await _ipostRespository.DeletPost(id);
+            return await _postRespository.DeletPost(id);
         }
         public async Task<IEnumerable<Post>> GetPosts()
         {
-            return await _ipostRespository.GetPosts();
+            return await _postRespository.GetPosts();
         }
         public async Task<Post> GetPosts(int id)
         {
-            return await _ipostRespository.GetPosts(id);
+            return await _postRespository.GetPosts(id);
         }
         public async Task<bool> updatePost(Post post)
         {
-            return await _ipostRespository.updatePost(post);
+            return await _postRespository.updatePost(post);
         }
     }
 }
