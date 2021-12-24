@@ -6,10 +6,10 @@ namespace SocialMedia.Core.Interfaces
 {
     public interface IPostService
     {
-        Task<IEnumerable<Post>> GetPosts();
-        Task<Post> GetPosts(int id);
-        Task crear(Post post);
-        Task<bool> updatePost(Post post);
-        Task<bool> DeletPost(int id);
+        Task<IEnumerable<Post>> GetAllPost();
+        Task<Post> GetPostById(int id);
+        Task CreatePost(Post post);
+        Task<bool> UpdatePost(Post post);
+        Task<bool> DeletePost(int id);
     }
 }

@@ -10,7 +10,7 @@ namespace SocialMedia.Infraestructure.Filters
 {
    public  class ValidationFilter : IAsyncActionFilter
     {
-        //se ejecuta cundo se invoca el request haceie el controlados
+        //se ejecuta cuando se invoca el request hacia  el controlados
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (!context.ModelState.IsValid)

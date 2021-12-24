@@ -28,7 +28,7 @@ namespace SocialMedia.Api.Controllers
         public async Task<IActionResult> GetPost()
         {
 
-            var post = await _postService.GetPosts();
+            var post = await _postService.GetAllPost();
             //forma de iteracion
             var postDto = _maper.Map<IEnumerable<PostDTO>>(post);
             var response = new ApiResponse<IEnumerable<PostDTO>>(postDto);
@@ -38,7 +38,7 @@ namespace SocialMedia.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPost(int id)
         {
-            var post = await _postService.GetPosts(id);
+            var post = await _postService.GetPostById(id);
             var postDto = _maper.Map<PostDTO>(post);
             var response = new ApiResponse<PostDTO>(postDto);
 
@@ -49,7 +49,7 @@ namespace SocialMedia.Api.Controllers
         {
 
             var post = _maper.Map<Post>(postDto);
-            await _postService.crear(post);
+            await _postService.CreatePost(post);
             postDto = _maper.Map<PostDTO>(post);
             var response = new ApiResponse<PostDTO>(postDto);
             return Ok(response);
@@ -58,8 +58,8 @@ namespace SocialMedia.Api.Controllers
         public async Task<IActionResult> Put(int id, PostDTO postDto)
         {
             var post = _maper.Map<Post>(postDto);
-            post.PostId = id;
-         var result=   await _postService.updatePost(post);
+            post.Id = id;
+         var result=   await _postService.UpdatePost(post);
             var esponse = new ApiResponse<bool>(result);
 
             return Ok(esponse);
@@ -67,7 +67,7 @@ namespace SocialMedia.Api.Controllers
         [HttpDelete("id")]
         public async Task<IActionResult> Delet(int id)
         {
-            var result=  await _postService.DeletPost(id);
+            var result=  await _postService.DeletePost(id);
             var response = new ApiResponse<bool>(result);
             return Ok(response);
         }
