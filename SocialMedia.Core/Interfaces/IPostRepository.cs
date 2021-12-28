@@ -1,15 +1,14 @@
 ﻿using SocialMedia.Core.Entities;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SocialMedia.Core.Interfaces
 {
-    public interface IPostRepository
+    public interface IPostRepository : IRepository<Post>
     {
-        Task<IEnumerable<Post>> GetPosts();
-        Task<Post> GetPosts(int id);
-        Task crear(Post post);
-        Task<bool> updatePost(Post post);
-        Task<bool> DeletPost(int id);
+      Task<IEnumerable<Post>> GetPostsByUser(int UserId);
     }
 }

@@ -25,10 +25,10 @@ namespace SocialMedia.Api.Controllers
             _maper = Imaper;
         }
         [HttpGet]
-        public async Task<IActionResult> GetPost()
+        public  IActionResult GetPost()
         {
 
-            var post = await _postService.GetAllPost();
+            var post =  _postService.GetAllPost();
             //forma de iteracion
             var postDto = _maper.Map<IEnumerable<PostDTO>>(post);
             var response = new ApiResponse<IEnumerable<PostDTO>>(postDto);

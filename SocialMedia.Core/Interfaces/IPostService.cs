@@ -6,7 +6,7 @@ namespace SocialMedia.Core.Interfaces
 {
     public interface IPostService
     {
-        Task<IEnumerable<Post>> GetAllPost();
+        IEnumerable<Post> GetAllPost();
         Task<Post> GetPostById(int id);
         Task CreatePost(Post post);
         Task<bool> UpdatePost(Post post);

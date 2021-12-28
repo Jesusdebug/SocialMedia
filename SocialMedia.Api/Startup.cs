@@ -40,7 +40,10 @@ namespace SocialMedia.Api
                     //options.SuppressModelStateInvalidFilter = true;
                 });
 
-            services.AddControllers();
+            services.AddControllers(options=>
+            {
+                options.Filters.Add<GlobalExceptionFilter>();
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SocialMedia.Api", Version = "v1" });
