@@ -1,16 +1,20 @@
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using SocialMedia.Core.CustormerEntities;
 using SocialMedia.Core.Interfaces;
 using SocialMedia.Core.Services;
 using SocialMedia.Infraestructure.Data;
 using SocialMedia.Infraestructure.Filters;
+using SocialMedia.Infraestructure.Interfaz;
 using SocialMedia.Infraestructure.Repositorios;
+using SocialMedia.Infraestructure.Service;
 using System;
 
 namespace SocialMedia.Api
@@ -34,6 +38,8 @@ namespace SocialMedia.Api
             services.AddControllers().AddNewtonsoftJson(options => 
             {
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            
             })
                 //vamos a validar de forma normal de nuestro modelo
                 .ConfigureApiBehaviorOptions(options=> {
@@ -44,6 +50,7 @@ namespace SocialMedia.Api
             {
                 options.Filters.Add<GlobalExceptionFilter>();
             });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SocialMedia.Api", Version = "v1" });
@@ -53,12 +60,20 @@ namespace SocialMedia.Api
             services.AddTransient<IPostService, PostService>();
             services.AddScoped(typeof(IRepository<>),typeof(BaseRepository<>));
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddSingleton<IUriService>(provider =>
+            {
+                var accesor = provider.GetRequiredService<IHttpContextAccessor>();
+                var request = accesor.HttpContext.Request;
+                var absoluteUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
+                return new UriService(absoluteUrl);
+            });
             services.AddMvc(options =>
             {
                 options.Filters.Add<ValidationFilter>();
             }).AddFluentValidation(options =>
             { options.RegisterValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
             });
+            services.Configure<PaginationOptions>(Configuration.GetSection("Pagination"));
 
         }
 

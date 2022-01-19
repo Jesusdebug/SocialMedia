@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SocialMedia.Api.Response;
+using SocialMedia.Core.CustormerEntities;
 using SocialMedia.Core.DTOs;
 using SocialMedia.Core.Entities;
 using SocialMedia.Core.Interfaces;
+using SocialMedia.Core.QueryFilters;
+using SocialMedia.Infraestructure.Interfaz;
 using SocialMedia.Infraestructure.Repositorios;
 using System;
 using System.Collections.Generic;
@@ -19,20 +23,36 @@ namespace SocialMedia.Api.Controllers
     {
         private readonly IPostService _postService;
         private readonly IMapper _maper;
-        public PostController(IPostService IpostService, IMapper Imaper)
+        private readonly IUriService _uriService;
+        public PostController(IPostService IpostService, IMapper Imaper, IUriService uriService)
         {
             _postService = IpostService;
             _maper = Imaper;
+            _uriService = uriService;
         }
-        [HttpGet]
-        public  IActionResult GetPost()
+
+        [HttpGet(Name = nameof(GetPost))]
+        
+        public  IActionResult GetPost([FromQuery]PostQueryFilter postQueryFilter)
         {
 
-            var post =  _postService.GetAllPost();
+            var post =  _postService.GetAllPost( postQueryFilter);
             //forma de iteracion
             var postDto = _maper.Map<IEnumerable<PostDTO>>(post);
-            var response = new ApiResponse<IEnumerable<PostDTO>>(postDto);
-
+            var metadata = new Metadata
+            {
+                TotalCount = post.TotalCount,
+                PageSize = post.PageSize,
+                CurrentPage = post.CurrentPage,
+                TotalPages = post.TotalPages,
+                HasNextiusPages = post.HasNextiusPages,
+                HasPreviusPages = post.HasPreviusPages,
+                NextiusPagesUrl = _uriService.GetPostPaginationUri(postQueryFilter, Url.RouteUrl(nameof(GetPost))).ToString()
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+            var response = new ApiResponse<IEnumerable<PostDTO>>(postDto) { 
+            Metadata=metadata,
+            };
             return Ok(response);
         }
         [HttpGet("{id}")]

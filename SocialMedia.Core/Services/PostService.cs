@@ -1,6 +1,9 @@
-﻿using SocialMedia.Core.Entities;
+﻿using Microsoft.Extensions.Options;
+using SocialMedia.Core.CustormerEntities;
+using SocialMedia.Core.Entities;
 using SocialMedia.Core.Exceptions;
 using SocialMedia.Core.Interfaces;
+using SocialMedia.Core.QueryFilters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +15,35 @@ namespace SocialMedia.Core.Services
     public class PostService : IPostService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public PostService(IUnitOfWork unitOfWork)
+        private readonly PaginationOptions _options;
+        public PostService(IUnitOfWork unitOfWork, IOptions<PaginationOptions> options)
         {
             _unitOfWork= unitOfWork;
+            _options = options.Value;
         }
-        public  IEnumerable<Post> GetAllPost()
+        public PagedList<Post> GetAllPost(PostQueryFilter filter)
         {
-            return _unitOfWork.PostRepository.GetAll();
+            //Filter.PageNumber = Filter.PageNumber == 0 ? 1 : Filter.PageNumber;
+            //Filter.PageZise = Filter.PageZise ==0 ? 2 : Filter.PageZise;
+            filter.PageNumber = filter.PageNumber == 0 ? _options.DefaulPageNumber : filter.PageNumber;
+            filter.PageZise = filter.PageZise == 0 ? _options.DefaulPageSize : filter.PageZise;
+
+            var posts= _unitOfWork.PostRepository.GetAll();
+
+            if (filter.UserId!=null)
+            {
+                posts = posts.Where(x => x.UserId == filter.UserId);
+            }
+            if (filter.Date != null)
+            {
+                posts = posts.Where(x => x.Date.ToShortDateString() == filter.Date?.ToShortDateString());
+            }
+            if (filter.Description !=null)
+            {
+                posts = posts.Where(x => x.Description.ToLower().Contains(filter.Description.ToLower()));
+            }
+            var pagedPosts = PagedList<Post>.create(posts,filter.PageNumber, filter.PageZise);
+            return pagedPosts;   
         }
         public async Task<Post> GetPostById(int id)
         {
