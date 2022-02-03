@@ -16,6 +16,8 @@ using SocialMedia.Infraestructure.Interfaz;
 using SocialMedia.Infraestructure.Repositorios;
 using SocialMedia.Infraestructure.Service;
 using System;
+using System.IO;
+using System.Reflection;
 
 namespace SocialMedia.Api
 {
@@ -54,6 +56,9 @@ namespace SocialMedia.Api
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SocialMedia.Api", Version = "v1" });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
             services.AddDbContext<SocialMediaContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("variable")));
@@ -71,7 +76,8 @@ namespace SocialMedia.Api
             {
                 options.Filters.Add<ValidationFilter>();
             }).AddFluentValidation(options =>
-            { options.RegisterValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+            {
+                options.RegisterValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
             });
             services.Configure<PaginationOptions>(Configuration.GetSection("Pagination"));
 
@@ -85,6 +91,7 @@ namespace SocialMedia.Api
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SocialMedia.Api v1"));
+
             }
 
             app.UseHttpsRedirection();

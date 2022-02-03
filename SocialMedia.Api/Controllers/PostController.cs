@@ -13,10 +13,12 @@ using SocialMedia.Infraestructure.Repositorios;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace SocialMedia.Api.Controllers
 {
+    [Produces("Application/json")]
     [Route("api/[controller]")]
     [ApiController]
     public class PostController : ControllerBase
@@ -30,9 +32,13 @@ namespace SocialMedia.Api.Controllers
             _maper = Imaper;
             _uriService = uriService;
         }
-
+        /// <summary>
+        /// Retrieve all post
+        /// </summary>
+        /// <param name="postQueryFilter"> Filter to apply</param>
+        /// <returns></returns>
         [HttpGet(Name = nameof(GetPost))]
-        
+        [ProducesResponseType((int)HttpStatusCode.OK, Type=typeof(ApiResponse<IEnumerable<PostDTO>>))]
         public  IActionResult GetPost([FromQuery]PostQueryFilter postQueryFilter)
         {
 
@@ -55,6 +61,11 @@ namespace SocialMedia.Api.Controllers
             };
             return Ok(response);
         }
+        /// <summary>
+        /// Obtenemos el post por el id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPost(int id)
         {
