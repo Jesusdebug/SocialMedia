@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace SocialMedia.Core.Entities
 {
-    public abstract class BaseEntity
+    public class UserLoging
     {
-        public int Id { get; set; }
+        public string user { get; set; }
+        public string password { get; set; }
     }
 }
