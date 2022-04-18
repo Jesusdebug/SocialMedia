@@ -1,6 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SocialMedia.Core.Entities;
@@ -29,9 +27,7 @@ namespace SocialMedia.Api.Controllers
                 return Ok(new { token });
             }
             return NotFound();
-
         }
-
         private string GenerateToken()
         {
             var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Authentication:secretKey"]));
@@ -54,7 +50,6 @@ namespace SocialMedia.Api.Controllers
             var token=new JwtSecurityToken(header, payload);
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
         public bool validateUser(UserLoging user)
         {
             return true;
