@@ -61,6 +61,7 @@ namespace SocialMedia.Api
             });
             services.AddDbContext<SocialMediaContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("variable")));
+            services.AddTransient<ISecurityService, SecurityService>();
             services.AddTransient<IPostService, PostService>();
             services.AddScoped(typeof(IRepository<>),typeof(BaseRepository<>));
             services.AddTransient<IUnitOfWork, UnitOfWork>();
