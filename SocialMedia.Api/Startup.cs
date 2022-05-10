@@ -15,6 +15,7 @@ using SocialMedia.Core.Services;
 using SocialMedia.Infraestructure.Data;
 using SocialMedia.Infraestructure.Filters;
 using SocialMedia.Infraestructure.Interfaz;
+using SocialMedia.Infraestructure.Options;
 using SocialMedia.Infraestructure.Repositorios;
 using SocialMedia.Infraestructure.Service;
 using System;
@@ -38,17 +39,18 @@ namespace SocialMedia.Api
             //automaper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             //para ingorar las referencias circulares 
-            services.AddControllers().AddNewtonsoftJson(options => 
+            services.AddControllers().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-            
+
             })
                 //vamos a validar de forma normal de nuestro modelo
-                .ConfigureApiBehaviorOptions(options=> {
+                .ConfigureApiBehaviorOptions(options =>
+                {
                     //options.SuppressModelStateInvalidFilter = true;
                 });
-            services.AddControllers(options=>
+            services.AddControllers(options =>
             {
                 options.Filters.Add<GlobalExceptionFilter>();
             });
@@ -63,8 +65,9 @@ namespace SocialMedia.Api
             options.UseSqlServer(Configuration.GetConnectionString("variable")));
             services.AddTransient<ISecurityService, SecurityService>();
             services.AddTransient<IPostService, PostService>();
-            services.AddScoped(typeof(IRepository<>),typeof(BaseRepository<>));
+            services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddSingleton<IPasswordService, PasswordService>();
             services.AddSingleton<IUriService>(provider =>
             {
                 var accesor = provider.GetRequiredService<IHttpContextAccessor>();
@@ -80,6 +83,7 @@ namespace SocialMedia.Api
                 options.RegisterValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
             });
             services.Configure<PaginationOptions>(Configuration.GetSection("Pagination"));
+            services.Configure<PasswordOptions>(Configuration.GetSection("PasswordOptions"));
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -106,7 +110,7 @@ namespace SocialMedia.Api
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SocialMedia.Api v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("../swagger/v1/swagger.json", "SocialMedia.Api v1"));
 
             }
             app.UseHttpsRedirection();
