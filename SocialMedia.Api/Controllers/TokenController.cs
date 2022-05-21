@@ -2,10 +2,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SocialMedia.Core.Entities;
+using SocialMedia.Core.Interfaces;
+using SocialMedia.Infraestructure.Interfaz;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SocialMedia.Api.Controllers
 {
@@ -13,31 +16,36 @@ namespace SocialMedia.Api.Controllers
     [ApiController]
     public class TokenController : ControllerBase
     {
-        private readonly IConfiguration _configuration; 
-        public TokenController(IConfiguration configuration)
+        private readonly IConfiguration _configuration;
+        private readonly IPasswordService _passwordService;
+        private readonly ISecurityService _securityService;
+        public TokenController(IConfiguration configuration, IPasswordService passwordService, ISecurityService securityService)
         {
-                _configuration=configuration;
+            _configuration = configuration;
+            _passwordService = passwordService;
+            _securityService = securityService;
         }
         [HttpPost]
-        public IActionResult Authentication(UserLoging user)
+        public async Task<IActionResult> Authentication(UserLoging user)
         {
-            if (validateUser(user))
+            var validation = await validateUser(user);
+            if (validation.Item1)
             {
-                string token = GenerateToken();
+                string token = GenerateToken(validation.Item2);
                 return Ok(new { token });
             }
             return NotFound();
         }
-        private string GenerateToken()
+        private string GenerateToken(Security security)
         {
             var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Authentication:secretKey"]));
             var signinfCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
             var header = new JwtHeader(signinfCredentials);
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name,"Jesus Antonio Rozo"),
-                new Claim(ClaimTypes.Email,"rozozapatajesus1997@gmial.com"),
-                new Claim(ClaimTypes.Role,"Administrador")
+                new Claim(ClaimTypes.Name,security.UserName),
+                new Claim("User",security.User),
+                new Claim(ClaimTypes.Role,security.Role.ToString())
             };
             var payload = new JwtPayload
             (
@@ -47,12 +55,14 @@ namespace SocialMedia.Api.Controllers
                 DateTime.Now,
                 DateTime.UtcNow.AddMinutes(2)
             );
-            var token=new JwtSecurityToken(header, payload);
+            var token = new JwtSecurityToken(header, payload);
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public bool validateUser(UserLoging user)
+        public async Task<(bool,Security)> validateUser(UserLoging login)
         {
-            return true;
+            var user = await _securityService.GetLoginByCredentials(login);
+            var isValid = _passwordService.Check(user.Password, login.password);
+            return (isValid,user);
         }
     }
 }
