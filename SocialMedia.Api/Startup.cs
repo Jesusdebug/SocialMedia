@@ -13,6 +13,7 @@ using SocialMedia.Core.CustormerEntities;
 using SocialMedia.Core.Interfaces;
 using SocialMedia.Core.Services;
 using SocialMedia.Infraestructure.Data;
+using SocialMedia.Infraestructure.Extensions;
 using SocialMedia.Infraestructure.Filters;
 using SocialMedia.Infraestructure.Interfaz;
 using SocialMedia.Infraestructure.Options;
@@ -61,20 +62,8 @@ namespace SocialMedia.Api
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
-            services.AddDbContext<SocialMediaContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("variable")));
-            services.AddTransient<ISecurityService, SecurityService>();
-            services.AddTransient<IPostService, PostService>();
-            services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
-            services.AddSingleton<IPasswordService, PasswordService>();
-            services.AddSingleton<IUriService>(provider =>
-            {
-                var accesor = provider.GetRequiredService<IHttpContextAccessor>();
-                var request = accesor.HttpContext.Request;
-                var absoluteUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
-                return new UriService(absoluteUrl);
-            });
+            services.AddDbContexts(Configuration);
+            services.AddServices();
             services.AddMvc(options =>
             {
                 options.Filters.Add<ValidationFilter>();
@@ -82,25 +71,24 @@ namespace SocialMedia.Api
             {
                 options.RegisterValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
             });
-            services.Configure<PaginationOptions>(Configuration.GetSection("Pagination"));
-            services.Configure<PasswordOptions>(Configuration.GetSection("PasswordOptions"));
+            services.AddOptions(Configuration);
             services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["Authentication:Issure"],
-                    ValidAudience = Configuration["Authentication:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:secretKey"])),
-                };
-            });
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = Configuration["Authentication:Issure"],
+                ValidAudience = Configuration["Authentication:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:secretKey"])),
+            };
+        });
 
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

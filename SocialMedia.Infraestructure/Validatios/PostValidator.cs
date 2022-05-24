@@ -10,7 +10,10 @@ namespace SocialMedia.Infraestructure.Validatios
         {
             RuleFor(pos => pos.Description)
                 .NotNull()
-                .Length(10, 500);
+                .WithMessage("la descripcion no puede ser nula");
+            RuleFor(pos => pos.Description)
+                .Length(10, 500)
+            .WithMessage("la descripcion debe estar entre 10 y 500 caracteres");
             RuleFor(pos => pos.Date)
               .NotNull()
             .LessThan(DateTime.Now);
